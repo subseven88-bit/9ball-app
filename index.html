@@ -8,8 +8,8 @@
 <meta name="format-detection" content="telephone=no">
 <meta name="apple-mobile-web-app-title" content="Ultimate++">
 
-<link rel="apple-touch-icon" sizes="180x180" href="https://cdn-icons-png.flaticon.com/512/2071/2071272.png">
-<link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/2071/2071272.png">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%23fbc02d'/%3E%3Ccircle cx='50' cy='50' r='35' fill='%23fff'/%3E%3Ctext x='50' y='65' font-family='Arial, sans-serif' font-size='45' font-weight='bold' text-anchor='middle' fill='%23000'%3E9%3C/text%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%23fbc02d'/%3E%3Ccircle cx='50' cy='50' r='35' fill='%23fff'/%3E%3Ctext x='50' y='65' font-family='Arial, sans-serif' font-size='45' font-weight='bold' text-anchor='middle' fill='%23000'%3E9%3C/text%3E%3C/svg%3E">
 
 <title>9-Ball Ultimate++</title>
 <style>
@@ -30,30 +30,17 @@ header{background:var(--header);padding:1rem;padding-top:max(1rem, env(safe-area
 header h1 {margin:0; font-size:1.2rem;}
 .header-btn {position:absolute; right:1rem; background:transparent; border:none; color:var(--text); font-size:1.5rem; padding:0; width:auto; margin:0;}
 
-.container{
-  padding:1rem;
-  max-width:500px;
-  margin:auto;
-  padding-bottom:120px;
-  padding-left:max(1rem, env(safe-area-inset-left));
-  padding-right:max(1rem, env(safe-area-inset-right));
-} 
-
+.container{padding:1rem;max-width:500px;margin:auto;padding-bottom:120px;padding-left:max(1rem, env(safe-area-inset-left));padding-right:max(1rem, env(safe-area-inset-right));} 
 .card{background:var(--card);border-radius:16px;padding:1.2rem;margin-bottom:1rem;box-shadow:0 4px 6px rgba(0,0,0,0.2);}
 h3{margin-top:0;}
 
 /* Buttons */
-button{
-  background:#1ec773; border:none; border-radius:12px; padding:1rem;
-  font-size:1rem; font-weight:bold; color:#000; cursor:pointer; width:100%;
-  margin-bottom:0.5rem; -webkit-appearance: none;
-}
+button{background:#1ec773; border:none; border-radius:12px; padding:1rem; font-size:1rem; font-weight:bold; color:#000; cursor:pointer; width:100%; margin-bottom:0.5rem; -webkit-appearance: none;}
 button:active{ opacity: 0.6; }
 button:disabled{ opacity: 0.3; cursor: default; }
 button.secondary{background:rgba(0,0,0,0.3);color:var(--text);}
 button.danger{background:var(--danger);color:#fff;}
 button.info{background:var(--info); color:#fff;}
-
 .btn-row{display:flex;gap:0.5rem;}
 .btn-row button{margin-bottom:0;}
 
@@ -82,7 +69,13 @@ td:last-child{text-align:right;font-weight:bold;font-size:1.2rem;}
 .modal-box{background:var(--card);padding:2rem;border-radius:20px;max-width:350px;width:100%;text-align:center;border:1px solid rgba(255,255,255,0.1);box-shadow: 0 10px 25px rgba(0,0,0,0.5);max-height:80vh;overflow-y:auto;}
 .rules-content {text-align:left; font-size:0.95rem; line-height:1.5; margin-bottom:1.5rem;}
 .rules-content li {margin-bottom:0.5rem;}
-.rack-img {width:100%; max-width:200px; height:auto; margin:0 auto 1rem auto; display:block; border-radius:8px; filter: drop-shadow(0 0 5px rgba(0,0,0,0.5));}
+
+/* CSS RACK VISUALIZATION (Kein Bild mehr nötig) */
+.rack-visual { display: flex; flex-direction: column; align-items: center; gap: 4px; margin-bottom: 15px; margin-top:10px;}
+.rack-row { display: flex; gap: 4px; }
+.b-mini { width: 24px; height: 24px; border-radius: 50%; background: #ddd; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: bold; color: #333; box-shadow: inset -2px -2px 5px rgba(0,0,0,0.3); border:1px solid rgba(0,0,0,0.2); }
+.b-1 { background: #f7d51d; color: #000; }
+.b-9 { background: #ffeb3b; border: 2px solid #fff; color: #000; box-shadow: 0 0 0 1px #000 inset; }
 
 /* Confetti */
 .confetti {position: fixed; width: 10px; height: 10px; background-color: #f00; animation: fall linear forwards;}
@@ -190,23 +183,29 @@ const ballColors = [
   {bg:'#8d6e63', txt:'#fff'}, {bg:'#111111', txt:'#fff'}, {bg:'#ffeb3b', txt:'#000'}
 ];
 
-// REGELN MIT BILD
+// REGELN MIT CSS-RAUTE
 const RULES_HTML = `
   <div class="rules-content">
-    <div style="text-align:center;">
-      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/66/9-ball_rack_diamond.svg/320px-9-ball_rack_diamond.svg.png" alt="9-Ball Aufbau" class="rack-img" style="background:rgba(255,255,255,0.1); padding:10px;">
-      <p style="font-size:0.8rem;opacity:0.7;margin-top:-10px;">Die 1 auf den Fußpunkt, die 9 in die Mitte.</p>
+    <div style="text-align:center; background:rgba(255,255,255,0.05); padding:10px; border-radius:8px; margin-bottom:1rem;">
+      <div class="rack-visual">
+        <div class="rack-row"><div class="b-mini b-1">1</div></div>
+        <div class="rack-row"><div class="b-mini"></div><div class="b-mini"></div></div>
+        <div class="rack-row"><div class="b-mini"></div><div class="b-mini b-9">9</div><div class="b-mini"></div></div>
+        <div class="rack-row"><div class="b-mini"></div><div class="b-mini"></div></div>
+        <div class="rack-row"><div class="b-mini"></div></div>
+      </div>
+      <p style="font-size:0.8rem;opacity:0.7;margin:0;">Die 1 auf den Fußpunkt (Spitze),<br>die 9 in die Mitte (Raute).</p>
     </div>
     <ul>
       <li><b>Ziel:</b> Erreiche die meisten Punkte.</li>
-      <li><b>Grundregel:</b> Es wird immer auf die niedrigste Kugel am Tisch gespielt (wie 9-Ball).</li>
+      <li><b>Grundregel:</b> Es wird immer auf die niedrigste Kugel am Tisch gespielt.</li>
       <li><b>Punkte:</b>
         <ul>
            <li>Niedrigste Kugel gelocht = <b>Wert der Kugel</b>.</li>
-           <li>Andere Kugel (Kombi) = <b>Wert der Kugel + Wert der niedrigsten Kugel</b>.</li>
+           <li>Kombi = <b>Wert der Kugel + Wert der niedrigsten</b>.</li>
         </ul>
       </li>
-      <li><b>Sieg:</b> Wer die 9 locht, gewinnt die Runde (es sei denn, es war ein Foul).</li>
+      <li><b>Sieg:</b> Wer die 9 locht, gewinnt sofort.</li>
       <li><b>Foul:</b> Weiße fällt oder niedrigste Kugel nicht getroffen = <b>-2 Punkte</b>. Gegner hat Ball-in-Hand.</li>
     </ul>
   </div>
@@ -237,7 +236,6 @@ document.addEventListener('DOMContentLoaded', () => {
   if(localStorage.getItem('uplus_state')) document.getElementById('restoreArea').style.display = 'block';
   updateRecordUI();
 
-  // Binds
   document.getElementById('addPlayerBtn').addEventListener('click', addInput);
   document.getElementById('removePlayerBtn').addEventListener('click', removeInput);
   ui.startBtn.addEventListener('click', startGame);
@@ -251,14 +249,11 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('themeToggle').addEventListener('click', () => document.body.classList.toggle('dark'));
   document.getElementById('headerRulesBtn').addEventListener('click', showRules);
   document.getElementById('setupRulesBtn').addEventListener('click', showRules);
-  // Neuer Export Bind
   document.getElementById('exportBtn').addEventListener('click', exportStats);
 });
 
 // --- CORE FUNCTIONS ---
-function requestWakeLock() {
-  if ('wakeLock' in navigator) { try { navigator.wakeLock.request('screen').then(l => wakeLock = l); } catch (e) { console.log('WakeLock Err', e); } }
-}
+function requestWakeLock() { if ('wakeLock' in navigator) { try { navigator.wakeLock.request('screen').then(l => wakeLock = l); } catch (e) { console.log('WakeLock Err', e); } } }
 function startGame() {
   if(document.activeElement) document.activeElement.blur();
   const inputs = [...ui.playerInputs.querySelectorAll('input')];
@@ -269,9 +264,7 @@ function startGame() {
   state.currentIdx = 0; state.roundCount = 1; state.history = []; state.undoStack = [];
   enterGameMode();
 }
-function restoreGame() {
-  try { const saved = JSON.parse(localStorage.getItem('uplus_state')); if(saved) { state = saved; enterGameMode(); } } catch(e) { console.error(e); }
-}
+function restoreGame() { try { const saved = JSON.parse(localStorage.getItem('uplus_state')); if(saved) { state = saved; enterGameMode(); } } catch(e) { console.error(e); } }
 function enterGameMode() {
   ui.setup.style.display = 'none'; ui.game.style.display = 'block'; ui.scores.style.display = 'block'; ui.stats.style.display = 'block';
   requestWakeLock(); setTimeout(() => { ui.game.scrollIntoView({behavior:'smooth'}); saveState(); render(); }, 50);
@@ -326,93 +319,4 @@ function finishRound(winner, msg) {
   }
   const summary = state.players.map(p => `${p.name}:${p.score}`).join(' | ');
   state.history.unshift({round: state.roundCount, winner: winner.name, score: winner.score, details: summary});
-  showInfo(msg, `Gewinner: ${winner.name} (${winner.score} Pkt)`, () => {
-    state.ballsLeft = [1,2,3,4,5,6,7,8,9]; state.players.forEach(p => p.score = 0);
-    state.currentIdx = (state.roundCount) % state.players.length; state.roundCount++;
-    state.pocketed = []; state.undoStack = []; saveState(); render(); updateRecordUI();
-  });
-}
-function updateStatsUI() {
-  if(state.history.length === 0) { ui.statsText.textContent = "Noch keine beendeten Runden."; ui.roundList.innerHTML = ''; return; }
-  const avg = Math.round(state.history.reduce((acc, h) => acc + h.score, 0) / state.history.length);
-  ui.statsText.innerHTML = `Runden: ${state.history.length} · Ø: ${avg} · E9: ${state.early9Count}`;
-  ui.roundList.innerHTML = state.history.map(h => `<li>Runde ${h.round}: <b>${h.winner}</b> (${h.score})<br><small style="opacity:0.6">${h.details}</small></li>`).join('');
-}
-function updateRecordUI() { const r = state.tableRecord || JSON.parse(localStorage.getItem('uplus_record')); document.getElementById('recordText').textContent = r ? `${r.score} Pkt - ${r.name} (${r.date})` : "- noch keiner -"; }
-function saveState() { localStorage.setItem('uplus_state', JSON.stringify(state)); }
-
-// --- NEW: EXPORT FUNCTION ---
-function exportStats() {
-  if(state.history.length === 0) return showInfo("Info", "Noch keine beendeten Runden zum Exportieren.");
-  
-  // Gesamtpunkte berechnen über alle Runden
-  let totalScores = {};
-  state.history.forEach(round => {
-    // round.details Format ist "Name1:10 | Name2:5"
-    round.details.split(' | ').forEach(entry => {
-        let [name, score] = entry.split(':');
-        score = parseInt(score) || 0;
-        if(!totalScores[name]) totalScores[name] = 0;
-        totalScores[name] += score;
-    });
-  });
-
-  const date = new Date().toLocaleDateString();
-  let text = `🎱 Ultimate++ Statistik (${date})\nRunden gespielt: ${state.history.length}\n\nGESAMTPUNKTE:\n`;
-  // Sortieren nach Punkten absteigend
-  Object.entries(totalScores)
-        .sort(([,a],[,b]) => b-a)
-        .forEach(([name, score], i) => {
-             text += `${i+1}. ${name}: ${score} Pkt\n`;
-        });
-
-  // In Zwischenablage kopieren
-  if(navigator.clipboard) {
-      navigator.clipboard.writeText(text).then(() => {
-         showInfo("Kopiert!", "Die Statistik ist in der Zwischenablage.<br>Du kannst sie jetzt (z.B. in WhatsApp) einfügen.");
-      }).catch(err => {
-         console.error(err);
-         showInfo("Fehler", "Konnte nicht automatisch kopieren (Browser-Sicherheit).");
-      });
-  } else {
-      showInfo("Fehler", "Dein Browser unterstützt das automatische Kopieren nicht.");
-  }
-}
-
-// --- MODAL & RULES ---
-function showRules() {
-  const overlay = document.getElementById('modalOverlay'); document.getElementById('mTitle').textContent = "Spielregeln";
-  document.getElementById('mContent').innerHTML = RULES_HTML; document.getElementById('mText').textContent = "";
-  document.getElementById('mOkBtn').style.display = 'block'; document.getElementById('mConfirmBtns').style.display = 'none';
-  overlay.style.display = 'flex';
-  const okBtn = document.getElementById('mOkBtn'); const newOk = okBtn.cloneNode(true); okBtn.replaceWith(newOk);
-  newOk.onclick = () => { overlay.style.display = 'none'; document.getElementById('mContent').innerHTML = ""; };
-}
-function showInfo(title, text, cb) {
-  const overlay = document.getElementById('modalOverlay'); document.getElementById('mTitle').textContent = title;
-  document.getElementById('mContent').innerHTML = ""; document.getElementById('mText').innerHTML = text;
-  document.getElementById('mOkBtn').style.display = 'block'; document.getElementById('mConfirmBtns').style.display = 'none';
-  overlay.style.display = 'flex'; const okBtn = document.getElementById('mOkBtn'); const newOk = okBtn.cloneNode(true); okBtn.replaceWith(newOk);
-  newOk.onclick = () => { overlay.style.display = 'none'; if(cb) cb(); };
-}
-function showConfirmDialog(title, text, onYes) {
-  const overlay = document.getElementById('modalOverlay'); document.getElementById('mTitle').textContent = title;
-  document.getElementById('mContent').innerHTML = ""; document.getElementById('mText').textContent = text;
-  document.getElementById('mOkBtn').style.display = 'none'; document.getElementById('mConfirmBtns').style.display = 'flex';
-  overlay.style.display = 'flex'; const btnYes = document.getElementById('mYesBtn'); const btnNo = document.getElementById('mCancelBtn');
-  const newYes = btnYes.cloneNode(true); const newNo = btnNo.cloneNode(true); btnYes.replaceWith(newYes); btnNo.replaceWith(newNo);
-  newNo.onclick = () => overlay.style.display = 'none'; newYes.onclick = () => { overlay.style.display = 'none'; if(onYes) onYes(); };
-}
-function confirmNewEvening() { showConfirmDialog("Neuer Abend?", "Alles löschen?", () => { localStorage.removeItem('uplus_state'); location.reload(); }); }
-function confirmResetRecord() { showConfirmDialog("Rekord löschen?", "Sicher?", () => { setTimeout(() => { showConfirmDialog("Wirklich?", "Endgültig löschen!", () => { state.tableRecord = null; localStorage.removeItem('uplus_record'); updateRecordUI(); }); }, 200); }); }
-function triggerConfetti() {
-  const colors = ['#f7d51d', '#e53935', '#1e90ff', '#fff'];
-  for (let i = 0; i < 30; i++) {
-    const c = document.createElement('div'); c.className = 'confetti'; c.style.left = Math.random() * 100 + 'vw';
-    c.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)]; c.style.animationDuration = (Math.random() * 2 + 2) + 's';
-    document.body.appendChild(c); setTimeout(() => c.remove(), 4000);
-  }
-}
-</script>
-</body>
-</html>
+  showInfo(msg
