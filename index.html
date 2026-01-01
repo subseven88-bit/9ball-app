@@ -8,9 +8,8 @@
 <meta name="format-detection" content="telephone=no">
 <meta name="apple-mobile-web-app-title" content="Ultimate++">
 
-<link rel="apple-touch-icon" href="https://raw.githubusercontent.com/google/material-design-icons/master/png/hardware/toys/materialicons/24dp/2x/baseline_toys_black_24dp.png">
-<link rel="icon" type="image/png" href="https://img.icons8.com/color/180/billiards.png">
-<link rel="apple-touch-icon" href="https://img.icons8.com/color/180/billiards.png">
+<link rel="apple-touch-icon" sizes="180x180" href="https://cdn-icons-png.flaticon.com/512/2071/2071272.png">
+<link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/2071/2071272.png">
 
 <title>9-Ball Ultimate++</title>
 <style>
@@ -83,16 +82,10 @@ td:last-child{text-align:right;font-weight:bold;font-size:1.2rem;}
 .modal-box{background:var(--card);padding:2rem;border-radius:20px;max-width:350px;width:100%;text-align:center;border:1px solid rgba(255,255,255,0.1);box-shadow: 0 10px 25px rgba(0,0,0,0.5);max-height:80vh;overflow-y:auto;}
 .rules-content {text-align:left; font-size:0.95rem; line-height:1.5; margin-bottom:1.5rem;}
 .rules-content li {margin-bottom:0.5rem;}
-
-/* CSS RACK VISUALIZATION (Der Aufbau) */
-.rack-visual { display: flex; flex-direction: column; align-items: center; gap: 4px; margin-bottom: 15px; margin-top:10px;}
-.rack-row { display: flex; gap: 4px; }
-.b-mini { width: 24px; height: 24px; border-radius: 50%; background: #ddd; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: bold; color: #333; box-shadow: inset -2px -2px 5px rgba(0,0,0,0.3); border:1px solid rgba(0,0,0,0.2); }
-.b-1 { background: #f7d51d; color: #000; }
-.b-9 { background: #ffeb3b; border: 2px solid #fff; color: #000; box-shadow: 0 0 0 1px #000 inset; }
+.rack-img {width:100%; max-width:200px; height:auto; margin:0 auto 1rem auto; display:block; border-radius:8px; filter: drop-shadow(0 0 5px rgba(0,0,0,0.5));}
 
 /* Confetti */
-.confetti {position: fixed; width: 10px; height: 10px; background-color: #f00; animation: fall linear forwards; pointer-events: none;}
+.confetti {position: fixed; width: 10px; height: 10px; background-color: #f00; animation: fall linear forwards;}
 @keyframes fall { to { transform: translateY(100vh) rotate(720deg); } }
 </style>
 </head>
@@ -181,9 +174,7 @@ td:last-child{text-align:right;font-weight:bold;font-size:1.2rem;}
     <h2 id="mTitle" style="color:var(--accent);margin-top:0;"></h2>
     <div id="mContent"></div>
     <p id="mText" style="font-size:1.1rem;line-height:1.5;margin:1.5rem 0;"></p>
-    
     <button id="mOkBtn" type="button" style="margin-top:1rem;display:none;">OK</button>
-    
     <div id="mConfirmBtns" class="btn-row" style="display:none;margin-top:1rem;">
         <button class="secondary" id="mCancelBtn">Abbrechen</button>
         <button class="danger" id="mYesBtn">Ja</button>
@@ -192,196 +183,236 @@ td:last-child{text-align:right;font-weight:bold;font-size:1.2rem;}
 </div>
 
 <script>
-// --- CONFIGURATION ---
+// --- CONFIG ---
 const ballColors = [
-  {bg:'#f7d51d', txt:'#000'}, // 1
-  {bg:'#1e90ff', txt:'#fff'}, // 2
-  {bg:'#e53935', txt:'#fff'}, // 3
-  {bg:'#6a1b9a', txt:'#fff'}, // 4
-  {bg:'#ff9800', txt:'#000'}, // 5
-  {bg:'#2e7d32', txt:'#fff'}, // 6
-  {bg:'#8d6e63', txt:'#fff'}, // 7
-  {bg:'#111111', txt:'#fff'}, // 8
-  {bg:'#ffeb3b', txt:'#000'}  // 9
+  {bg:'#f7d51d', txt:'#000'}, {bg:'#1e90ff', txt:'#fff'}, {bg:'#e53935', txt:'#fff'},
+  {bg:'#6a1b9a', txt:'#fff'}, {bg:'#ff9800', txt:'#000'}, {bg:'#2e7d32', txt:'#fff'},
+  {bg:'#8d6e63', txt:'#fff'}, {bg:'#111111', txt:'#fff'}, {bg:'#ffeb3b', txt:'#000'}
 ];
 
-// REGELN (HTML String mit CSS-Raute)
+// REGELN MIT BILD
 const RULES_HTML = `
   <div class="rules-content">
-    <div style="text-align:center; background:rgba(255,255,255,0.05); padding:10px; border-radius:8px; margin-bottom:1rem;">
-      <div class="rack-visual">
-        <div class="rack-row"><div class="b-mini b-1">1</div></div>
-        <div class="rack-row"><div class="b-mini"></div><div class="b-mini"></div></div>
-        <div class="rack-row"><div class="b-mini"></div><div class="b-mini b-9">9</div><div class="b-mini"></div></div>
-        <div class="rack-row"><div class="b-mini"></div><div class="b-mini"></div></div>
-        <div class="rack-row"><div class="b-mini"></div></div>
-      </div>
-      <p style="font-size:0.8rem;opacity:0.7;margin:0;">Die 1 auf den Fußpunkt (Spitze),<br>die 9 in die Mitte (Raute).</p>
+    <div style="text-align:center;">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/66/9-ball_rack_diamond.svg/320px-9-ball_rack_diamond.svg.png" alt="9-Ball Aufbau" class="rack-img" style="background:rgba(255,255,255,0.1); padding:10px;">
+      <p style="font-size:0.8rem;opacity:0.7;margin-top:-10px;">Die 1 auf den Fußpunkt, die 9 in die Mitte.</p>
     </div>
     <ul>
       <li><b>Ziel:</b> Erreiche die meisten Punkte.</li>
-      <li><b>Grundregel:</b> Es wird immer auf die niedrigste Kugel am Tisch gespielt.</li>
+      <li><b>Grundregel:</b> Es wird immer auf die niedrigste Kugel am Tisch gespielt (wie 9-Ball).</li>
       <li><b>Punkte:</b>
         <ul>
            <li>Niedrigste Kugel gelocht = <b>Wert der Kugel</b>.</li>
-           <li>Kombi = <b>Wert der Kugel + Wert der niedrigsten</b>.</li>
+           <li>Andere Kugel (Kombi) = <b>Wert der Kugel + Wert der niedrigsten Kugel</b>.</li>
         </ul>
       </li>
-      <li><b>Sieg:</b> Wer die 9 locht, gewinnt sofort.</li>
+      <li><b>Sieg:</b> Wer die 9 locht, gewinnt die Runde (es sei denn, es war ein Foul).</li>
       <li><b>Foul:</b> Weiße fällt oder niedrigste Kugel nicht getroffen = <b>-2 Punkte</b>. Gegner hat Ball-in-Hand.</li>
     </ul>
   </div>
 `;
 
-// --- STATE MANAGEMENT ---
+// --- STATE ---
 let state = {
-  phase: 'setup',
-  players: [],
-  currentIdx: 0,
-  ballsLeft: [],
-  pocketed: [],
-  history: [],
-  undoStack: [],
-  roundCount: 1,
-  early9Count: 0,
+  phase: 'setup', players: [], currentIdx: 0, ballsLeft: [], pocketed: [],
+  history: [], undoStack: [], roundCount: 1, early9Count: 0,
   tableRecord: JSON.parse(localStorage.getItem('uplus_record')) || null
 };
 let wakeLock = null;
 let ui = {};
 
-// --- INITIALIZATION ---
+// --- INIT ---
 document.addEventListener('DOMContentLoaded', () => {
-  // UI Cache
   ui = {
-    setup: document.getElementById('setup'),
-    game: document.getElementById('game'),
-    scores: document.getElementById('scores'),
-    stats: document.getElementById('stats'),
-    playerInputs: document.getElementById('playerInputs'),
-    grid: document.getElementById('ballGrid'),
-    currentName: document.getElementById('currentPlayerName'),
-    lowestDisplay: document.getElementById('lowestDisplay'),
-    scoreTable: document.getElementById('scoreTable'),
-    statsText: document.getElementById('statsText'),
-    roundList: document.getElementById('roundList'),
-    recordText: document.getElementById('recordText'),
+    setup: document.getElementById('setup'), game: document.getElementById('game'),
+    scores: document.getElementById('scores'), stats: document.getElementById('stats'),
+    playerInputs: document.getElementById('playerInputs'), grid: document.getElementById('ballGrid'),
+    currentName: document.getElementById('currentPlayerName'), lowestDisplay: document.getElementById('lowestDisplay'),
+    scoreTable: document.getElementById('scoreTable'), statsText: document.getElementById('statsText'),
+    roundList: document.getElementById('roundList'), recordText: document.getElementById('recordText'),
     roundCounter: document.getElementById('roundCounter'),
-    // Buttons
-    startBtn: document.getElementById('startBtn'),
-    restoreBtn: document.getElementById('restoreBtn')
+    startBtn: document.getElementById('startBtn'), restoreBtn: document.getElementById('restoreBtn')
   };
 
-  // Check for saved game
-  if(localStorage.getItem('uplus_state')) {
-    document.getElementById('restoreArea').style.display = 'block';
-  }
+  if(localStorage.getItem('uplus_state')) document.getElementById('restoreArea').style.display = 'block';
   updateRecordUI();
 
-  // Event Listeners (Sauber getrennt)
+  // Binds
   document.getElementById('addPlayerBtn').addEventListener('click', addInput);
   document.getElementById('removePlayerBtn').addEventListener('click', removeInput);
-  
   ui.startBtn.addEventListener('click', startGame);
   ui.restoreBtn.addEventListener('click', restoreGame);
-  
   document.getElementById('confirmShot').addEventListener('click', confirmShot);
   document.getElementById('noPocketBtn').addEventListener('click', nextTurn);
   document.getElementById('foulBtn').addEventListener('click', foul);
   document.getElementById('undoBtn').addEventListener('click', undo);
-  
   document.getElementById('newEveningBtn').addEventListener('click', confirmNewEvening);
   document.getElementById('resetRecordBtn').addEventListener('click', confirmResetRecord);
   document.getElementById('themeToggle').addEventListener('click', () => document.body.classList.toggle('dark'));
-  
-  // Regeln & Export
   document.getElementById('headerRulesBtn').addEventListener('click', showRules);
   document.getElementById('setupRulesBtn').addEventListener('click', showRules);
+  // Neuer Export Bind
   document.getElementById('exportBtn').addEventListener('click', exportStats);
 });
 
-// --- FUNCTIONS ---
-
+// --- CORE FUNCTIONS ---
 function requestWakeLock() {
-  if ('wakeLock' in navigator) {
-    try {
-      navigator.wakeLock.request('screen').then(l => wakeLock = l);
-    } catch (e) { console.log('WakeLock info', e); }
-  }
+  if ('wakeLock' in navigator) { try { navigator.wakeLock.request('screen').then(l => wakeLock = l); } catch (e) { console.log('WakeLock Err', e); } }
 }
-
 function startGame() {
   if(document.activeElement) document.activeElement.blur();
   const inputs = [...ui.playerInputs.querySelectorAll('input')];
   const names = inputs.map(i => i.value.trim() || i.placeholder).filter(n => n);
-  
   if(names.length < 1) return showInfo("Fehler", "Bitte mindestens einen Spieler eingeben.");
-  
   state.players = names.map(n => ({name: n, score: 0}));
-  state.phase = 'playing';
-  state.ballsLeft = [1,2,3,4,5,6,7,8,9];
-  state.pocketed = [];
-  state.currentIdx = 0;
-  state.roundCount = 1;
-  state.history = [];
-  state.undoStack = [];
-  
+  state.phase = 'playing'; state.ballsLeft = [1,2,3,4,5,6,7,8,9]; state.pocketed = [];
+  state.currentIdx = 0; state.roundCount = 1; state.history = []; state.undoStack = [];
   enterGameMode();
 }
-
 function restoreGame() {
-  try {
-    const saved = JSON.parse(localStorage.getItem('uplus_state'));
-    if(saved) {
-      state = saved;
-      enterGameMode();
-    }
-  } catch(e) { console.error(e); }
+  try { const saved = JSON.parse(localStorage.getItem('uplus_state')); if(saved) { state = saved; enterGameMode(); } } catch(e) { console.error(e); }
 }
-
 function enterGameMode() {
-  ui.setup.style.display = 'none';
-  ui.game.style.display = 'block';
-  ui.scores.style.display = 'block';
-  ui.stats.style.display = 'block';
-  requestWakeLock();
-  
-  // Kurzer Delay für Rendering
-  setTimeout(() => {
-    ui.game.scrollIntoView({behavior:'smooth'});
-    saveState();
-    render();
-  }, 50);
+  ui.setup.style.display = 'none'; ui.game.style.display = 'block'; ui.scores.style.display = 'block'; ui.stats.style.display = 'block';
+  requestWakeLock(); setTimeout(() => { ui.game.scrollIntoView({behavior:'smooth'}); saveState(); render(); }, 50);
 }
-
-function addInput() {
-  const i = document.createElement('input');
-  i.placeholder = `Spieler ${ui.playerInputs.children.length + 1}`;
-  ui.playerInputs.appendChild(i);
-}
-
-function removeInput() {
-  if(ui.playerInputs.children.length > 1) ui.playerInputs.lastChild.remove();
-}
-
-function getLowest() {
-  return Math.min(...state.ballsLeft);
-}
+function addInput() { const i = document.createElement('input'); i.placeholder = `Spieler ${ui.playerInputs.children.length + 1}`; ui.playerInputs.appendChild(i); }
+function removeInput() { if(ui.playerInputs.children.length > 1) ui.playerInputs.lastChild.remove(); }
+function getLowest() { return Math.min(...state.ballsLeft); }
 
 function render() {
-  const p = state.players[state.currentIdx];
-  ui.currentName.textContent = p.name;
-  const low = getLowest();
-  ui.lowestDisplay.textContent = isFinite(low) ? low : "-";
+  const p = state.players[state.currentIdx]; ui.currentName.textContent = p.name;
+  const low = getLowest(); ui.lowestDisplay.textContent = isFinite(low) ? low : "-";
   ui.roundCounter.textContent = `Runde ${state.roundCount}`;
-
-  // Grid rendern
   ui.grid.innerHTML = '';
   for(let i=1; i<=9; i++) {
-    const btn = document.createElement('button');
-    btn.className = 'ball';
-    const color = ballColors[i-1];
-    btn.style.backgroundColor = color.bg;
-    btn.style.color = color.txt;
-    btn.textContent = i;
-    
-    if(!state.ballsLeft
+    const btn = document.createElement('button'); btn.className = 'ball';
+    const color = ballColors[i-1]; btn.style.backgroundColor = color.bg; btn.style.color = color.txt; btn.textContent = i;
+    if(!state.ballsLeft.includes(i)) btn.classList.add('ghost'); else btn.onclick = () => togglePocket(i, btn);
+    if(state.pocketed.includes(i)) { btn.classList.add('sel'); if(i===9) btn.style.boxShadow = "0 0 15px #ff0000"; }
+    ui.grid.appendChild(btn);
+  }
+  let html = '<tr><th>Name</th><th>Pkt</th></tr>';
+  state.players.forEach((pl, idx) => {
+    html += `<tr class="${idx === state.currentIdx ? 'active-row' : ''}"><td>${idx === state.currentIdx ? '🎱 ' : ''}${pl.name}</td><td>${pl.score}</td></tr>`;
+  });
+  ui.scoreTable.innerHTML = html; updateStatsUI();
+}
+function togglePocket(num, btn) { state.pocketed.includes(num) ? state.pocketed = state.pocketed.filter(n => n !== num) : state.pocketed.push(num); render(); }
+function pushUndo() { state.undoStack.push(JSON.stringify(state)); if(state.undoStack.length > 12) state.undoStack.shift(); }
+
+function confirmShot() {
+  if(state.pocketed.length === 0) return showInfo("Info", "Keine Kugel ausgewählt.");
+  pushUndo();
+  const low = getLowest(); const player = state.players[state.currentIdx];
+  let points = 0; let gameWon = false; let early9 = false;
+  state.pocketed.forEach(ball => {
+    points += (ball === low) ? ball : (ball + low);
+    if(ball === 9) { if(state.ballsLeft.length > 1 && !state.pocketed.includes(low)) early9 = true; gameWon = true; }
+  });
+  player.score += points; state.ballsLeft = state.ballsLeft.filter(b => !state.pocketed.includes(b)); state.pocketed = [];
+  if(gameWon) { if(early9) state.early9Count++; triggerConfetti(); finishRound(player, early9 ? "🎯 EARLY 9! Sieg!" : "🎱 9 gefallen! Sieg!"); }
+  else { if(state.ballsLeft.length === 0) finishRound(null, "Tisch leer gespielt."); else { saveState(); render(); } }
+}
+function nextTurn() { pushUndo(); state.pocketed = []; state.currentIdx = (state.currentIdx + 1) % state.players.length; saveState(); render(); }
+function foul() { pushUndo(); state.pocketed = []; state.players[state.currentIdx].score = Math.max(0, state.players[state.currentIdx].score - 2); state.currentIdx = (state.currentIdx + 1) % state.players.length; saveState(); render(); }
+function undo() { if(state.undoStack.length === 0) return showInfo("Info", "Nichts zum Rückgängig machen."); const prev = JSON.parse(state.undoStack.pop()); state.players = prev.players; state.currentIdx = prev.currentIdx; state.ballsLeft = prev.ballsLeft; state.phase = prev.phase; state.roundCount = prev.roundCount; state.pocketed = []; saveState(); render(); }
+
+function finishRound(winner, msg) {
+  if(!winner) winner = state.players.reduce((a,b) => a.score > b.score ? a : b);
+  if(!state.tableRecord || winner.score > state.tableRecord.score) {
+    state.tableRecord = {name: winner.name, score: winner.score, date: new Date().toLocaleDateString()};
+    localStorage.setItem('uplus_record', JSON.stringify(state.tableRecord)); msg += `<br><br>🏆 NEUER REKORD: ${winner.score}!`;
+  }
+  const summary = state.players.map(p => `${p.name}:${p.score}`).join(' | ');
+  state.history.unshift({round: state.roundCount, winner: winner.name, score: winner.score, details: summary});
+  showInfo(msg, `Gewinner: ${winner.name} (${winner.score} Pkt)`, () => {
+    state.ballsLeft = [1,2,3,4,5,6,7,8,9]; state.players.forEach(p => p.score = 0);
+    state.currentIdx = (state.roundCount) % state.players.length; state.roundCount++;
+    state.pocketed = []; state.undoStack = []; saveState(); render(); updateRecordUI();
+  });
+}
+function updateStatsUI() {
+  if(state.history.length === 0) { ui.statsText.textContent = "Noch keine beendeten Runden."; ui.roundList.innerHTML = ''; return; }
+  const avg = Math.round(state.history.reduce((acc, h) => acc + h.score, 0) / state.history.length);
+  ui.statsText.innerHTML = `Runden: ${state.history.length} · Ø: ${avg} · E9: ${state.early9Count}`;
+  ui.roundList.innerHTML = state.history.map(h => `<li>Runde ${h.round}: <b>${h.winner}</b> (${h.score})<br><small style="opacity:0.6">${h.details}</small></li>`).join('');
+}
+function updateRecordUI() { const r = state.tableRecord || JSON.parse(localStorage.getItem('uplus_record')); document.getElementById('recordText').textContent = r ? `${r.score} Pkt - ${r.name} (${r.date})` : "- noch keiner -"; }
+function saveState() { localStorage.setItem('uplus_state', JSON.stringify(state)); }
+
+// --- NEW: EXPORT FUNCTION ---
+function exportStats() {
+  if(state.history.length === 0) return showInfo("Info", "Noch keine beendeten Runden zum Exportieren.");
+  
+  // Gesamtpunkte berechnen über alle Runden
+  let totalScores = {};
+  state.history.forEach(round => {
+    // round.details Format ist "Name1:10 | Name2:5"
+    round.details.split(' | ').forEach(entry => {
+        let [name, score] = entry.split(':');
+        score = parseInt(score) || 0;
+        if(!totalScores[name]) totalScores[name] = 0;
+        totalScores[name] += score;
+    });
+  });
+
+  const date = new Date().toLocaleDateString();
+  let text = `🎱 Ultimate++ Statistik (${date})\nRunden gespielt: ${state.history.length}\n\nGESAMTPUNKTE:\n`;
+  // Sortieren nach Punkten absteigend
+  Object.entries(totalScores)
+        .sort(([,a],[,b]) => b-a)
+        .forEach(([name, score], i) => {
+             text += `${i+1}. ${name}: ${score} Pkt\n`;
+        });
+
+  // In Zwischenablage kopieren
+  if(navigator.clipboard) {
+      navigator.clipboard.writeText(text).then(() => {
+         showInfo("Kopiert!", "Die Statistik ist in der Zwischenablage.<br>Du kannst sie jetzt (z.B. in WhatsApp) einfügen.");
+      }).catch(err => {
+         console.error(err);
+         showInfo("Fehler", "Konnte nicht automatisch kopieren (Browser-Sicherheit).");
+      });
+  } else {
+      showInfo("Fehler", "Dein Browser unterstützt das automatische Kopieren nicht.");
+  }
+}
+
+// --- MODAL & RULES ---
+function showRules() {
+  const overlay = document.getElementById('modalOverlay'); document.getElementById('mTitle').textContent = "Spielregeln";
+  document.getElementById('mContent').innerHTML = RULES_HTML; document.getElementById('mText').textContent = "";
+  document.getElementById('mOkBtn').style.display = 'block'; document.getElementById('mConfirmBtns').style.display = 'none';
+  overlay.style.display = 'flex';
+  const okBtn = document.getElementById('mOkBtn'); const newOk = okBtn.cloneNode(true); okBtn.replaceWith(newOk);
+  newOk.onclick = () => { overlay.style.display = 'none'; document.getElementById('mContent').innerHTML = ""; };
+}
+function showInfo(title, text, cb) {
+  const overlay = document.getElementById('modalOverlay'); document.getElementById('mTitle').textContent = title;
+  document.getElementById('mContent').innerHTML = ""; document.getElementById('mText').innerHTML = text;
+  document.getElementById('mOkBtn').style.display = 'block'; document.getElementById('mConfirmBtns').style.display = 'none';
+  overlay.style.display = 'flex'; const okBtn = document.getElementById('mOkBtn'); const newOk = okBtn.cloneNode(true); okBtn.replaceWith(newOk);
+  newOk.onclick = () => { overlay.style.display = 'none'; if(cb) cb(); };
+}
+function showConfirmDialog(title, text, onYes) {
+  const overlay = document.getElementById('modalOverlay'); document.getElementById('mTitle').textContent = title;
+  document.getElementById('mContent').innerHTML = ""; document.getElementById('mText').textContent = text;
+  document.getElementById('mOkBtn').style.display = 'none'; document.getElementById('mConfirmBtns').style.display = 'flex';
+  overlay.style.display = 'flex'; const btnYes = document.getElementById('mYesBtn'); const btnNo = document.getElementById('mCancelBtn');
+  const newYes = btnYes.cloneNode(true); const newNo = btnNo.cloneNode(true); btnYes.replaceWith(newYes); btnNo.replaceWith(newNo);
+  newNo.onclick = () => overlay.style.display = 'none'; newYes.onclick = () => { overlay.style.display = 'none'; if(onYes) onYes(); };
+}
+function confirmNewEvening() { showConfirmDialog("Neuer Abend?", "Alles löschen?", () => { localStorage.removeItem('uplus_state'); location.reload(); }); }
+function confirmResetRecord() { showConfirmDialog("Rekord löschen?", "Sicher?", () => { setTimeout(() => { showConfirmDialog("Wirklich?", "Endgültig löschen!", () => { state.tableRecord = null; localStorage.removeItem('uplus_record'); updateRecordUI(); }); }, 200); }); }
+function triggerConfetti() {
+  const colors = ['#f7d51d', '#e53935', '#1e90ff', '#fff'];
+  for (let i = 0; i < 30; i++) {
+    const c = document.createElement('div'); c.className = 'confetti'; c.style.left = Math.random() * 100 + 'vw';
+    c.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)]; c.style.animationDuration = (Math.random() * 2 + 2) + 's';
+    document.body.appendChild(c); setTimeout(() => c.remove(), 4000);
+  }
+}
+</script>
+</body>
+</html>
