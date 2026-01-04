@@ -8,8 +8,8 @@
 <meta name="format-detection" content="telephone=no">
 <meta name="apple-mobile-web-app-title" content="Ultimate">
 
-<link rel="apple-touch-icon" href="https://img.icons8.com/color/180/billiards.png">
-<link rel="icon" type="image/png" href="https://img.icons8.com/color/180/billiards.png">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%23fbc02d'/%3E%3Ccircle cx='50' cy='50' r='35' fill='%23fff'/%3E%3Ctext x='50' y='65' font-family='Arial, sans-serif' font-size='45' font-weight='bold' text-anchor='middle' fill='%23000'%3E9%3C/text%3E%3C/svg%3E">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%23fbc02d'/%3E%3Ccircle cx='50' cy='50' r='35' fill='%23fff'/%3E%3Ctext x='50' y='65' font-family='Arial, sans-serif' font-size='45' font-weight='bold' text-anchor='middle' fill='%23000'%3E9%3C/text%3E%3C/svg%3E">
 
 <title>9-Ball Ultimate</title>
 <style>
@@ -28,8 +28,8 @@ body{
 
 header{
   background:var(--header);
-  padding:0.8rem 1rem;
-  padding-top:max(0.8rem, env(safe-area-inset-top));
+  padding:0.6rem 1rem; /* Etwas kompakter */
+  padding-top:max(0.6rem, env(safe-area-inset-top));
   text-align:center;
   box-shadow:0 2px 5px rgba(0,0,0,0.3);
   position:relative;
@@ -39,12 +39,12 @@ header{
   align-items:center;
   justify-content:center;
 }
-header h1 {margin:0; font-size:1.2rem; font-weight:800; letter-spacing:1px;}
+header h1 {margin:0; font-size:1.1rem; font-weight:800; letter-spacing:1px;}
 /* Mini Scoreboard */
 #miniScore {
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   color: var(--accent);
-  margin-top: 5px;
+  margin-top: 3px;
   font-weight: 500;
   white-space: nowrap;
   opacity: 1;
@@ -66,20 +66,20 @@ header h1 {margin:0; font-size:1.2rem; font-weight:800; letter-spacing:1px;}
 }
 
 .container{
-  padding:1rem;
+  padding:0.8rem; /* Weniger Rand */
   max-width:500px;
   margin:auto;
   padding-bottom:120px;
-  padding-left:max(1rem, env(safe-area-inset-left));
-  padding-right:max(1rem, env(safe-area-inset-right));
+  padding-left:max(0.8rem, env(safe-area-inset-left));
+  padding-right:max(0.8rem, env(safe-area-inset-right));
 } 
 
-.card{background:var(--card);border-radius:16px;padding:1.2rem;margin-bottom:1rem;box-shadow:0 4px 6px rgba(0,0,0,0.2);}
-h3{margin-top:0;}
+.card{background:var(--card);border-radius:16px;padding:1rem;margin-bottom:0.8rem;box-shadow:0 4px 6px rgba(0,0,0,0.2);}
+h3{margin-top:0; font-size:1.1rem;}
 
 /* Buttons */
 button{
-  background:#1ec773; border:none; border-radius:12px; padding:1rem;
+  background:#1ec773; border:none; border-radius:12px; padding:0.9rem;
   font-size:1rem; font-weight:bold; color:#000; cursor:pointer; width:100%;
   margin-bottom:0.5rem; -webkit-appearance: none;
 }
@@ -93,24 +93,40 @@ button.info{background:var(--info); color:#fff;}
 .btn-row button{margin-bottom:0;}
 
 /* Inputs */
-input{width:100%; padding:12px; margin-bottom:10px; border-radius:8px; border:none; font-size:1rem; box-sizing:border-box; background: rgba(255,255,255,0.9);}
+input{width:100%; padding:10px; margin-bottom:8px; border-radius:8px; border:none; font-size:1rem; box-sizing:border-box; background: rgba(255,255,255,0.9);}
 
-/* Ball Grid */
-.ball-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:1rem 0;}
-.ball{border-radius:50%;aspect-ratio:1;height:auto;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:1.4rem;box-shadow:inset -3px -3px 5px rgba(0,0,0,0.3);border:2px solid transparent;cursor:pointer;padding:0;width:100%;-webkit-user-select:none;user-select:none;}
-.ball.sel{border:3px solid #fff;box-shadow:0 0 15px var(--accent);}
+/* Ball Grid - KOMPAKTER GEMACHT */
+.ball-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:0.8rem 0;}
+.ball{
+  border-radius:50%;
+  aspect-ratio:1;
+  height:auto;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:900;
+  font-size:1.15rem; /* Kleiner als vorher (war 1.4) */
+  box-shadow:inset -3px -3px 5px rgba(0,0,0,0.3);
+  border:2px solid transparent;
+  cursor:pointer;
+  padding:0;
+  width:100%;
+  -webkit-user-select:none;
+  user-select:none;
+}
+.ball.sel{border:3px solid #fff;box-shadow:0 0 10px var(--accent);transform: scale(0.95);}
 .ball.ghost{opacity:0.2;pointer-events:none;filter:grayscale(1);}
 
 /* Table */
 table{width:100%;border-collapse:collapse;margin-top:0.5rem;}
-th,td{padding:.8rem;text-align:left;border-bottom:1px solid rgba(255,255,255,.1);}
-td:last-child{text-align:right;font-weight:bold;font-size:1.2rem;}
+th,td{padding:.6rem;text-align:left;border-bottom:1px solid rgba(255,255,255,.1);}
+td:last-child{text-align:right;font-weight:bold;font-size:1.1rem;}
 .active-row{background:rgba(255,255,255,0.1);color:var(--accent);}
 
 /* Info & Modals */
-.info-box{background:rgba(0,0,0,0.2);padding:10px;border-radius:8px;text-align:center;margin-bottom:1rem;}
-.info-label{font-size:0.8rem;opacity:0.8;text-transform:uppercase;}
-.info-val{font-size:1.4rem;font-weight:bold;color:var(--accent);}
+.info-box{background:rgba(0,0,0,0.2);padding:8px;border-radius:8px;text-align:center;margin-bottom:0.8rem;}
+.info-label{font-size:0.75rem;opacity:0.8;text-transform:uppercase;}
+.info-val{font-size:1.3rem;font-weight:bold;color:var(--accent);}
 .link-danger{color:#ff9999;font-size:0.8rem;text-decoration:underline;cursor:pointer;display:inline-block;margin-top:5px;padding:10px;}
 
 #modalOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);align-items:center;justify-content:center;z-index:9999;backdrop-filter:blur(5px);padding:1rem;}
@@ -254,7 +270,7 @@ const RULES_HTML = `
         </ul>
       </li>
       <li><b>Sieg:</b> Wer die 9 locht, gewinnt sofort.</li>
-      <li><b>Foul:</b> Weiße fällt oder niedrigste Kugel nicht getroffen = <b>-2 Punkte</b>. Gegner startet mit der Weißen Kugel wieder auf der "Startlinie".</li>
+      <li><b>Foul:</b> Weiße fällt oder niedrigste Kugel nicht getroffen = <b>-2 Punkte</b>. Gegner startet an "Startlinie".</li>
     </ul>
   </div>
 `;
@@ -270,31 +286,20 @@ let ui = {};
 
 // --- INIT ---
 document.addEventListener('DOMContentLoaded', () => {
-  // UI Cache - sicherstellen, dass alle IDs existieren
   ui = {
-    setup: document.getElementById('setup'), 
-    game: document.getElementById('game'),
-    scores: document.getElementById('scores'), 
-    stats: document.getElementById('stats'),
-    playerInputs: document.getElementById('playerInputs'), 
-    grid: document.getElementById('ballGrid'),
-    currentName: document.getElementById('currentPlayerName'), 
-    lowestDisplay: document.getElementById('lowestDisplay'),
-    scoreTable: document.getElementById('scoreTable'), 
-    statsText: document.getElementById('statsText'),
-    roundList: document.getElementById('roundList'), 
-    recordText: document.getElementById('recordText'),
-    roundCounter: document.getElementById('roundCounter'), 
-    miniScore: document.getElementById('miniScore'),
-    startBtn: document.getElementById('startBtn'), 
-    restoreBtn: document.getElementById('restoreBtn')
+    setup: document.getElementById('setup'), game: document.getElementById('game'),
+    scores: document.getElementById('scores'), stats: document.getElementById('stats'),
+    playerInputs: document.getElementById('playerInputs'), grid: document.getElementById('ballGrid'),
+    currentName: document.getElementById('currentPlayerName'), lowestDisplay: document.getElementById('lowestDisplay'),
+    scoreTable: document.getElementById('scoreTable'), statsText: document.getElementById('statsText'),
+    roundList: document.getElementById('roundList'), recordText: document.getElementById('recordText'),
+    roundCounter: document.getElementById('roundCounter'), miniScore: document.getElementById('miniScore'),
+    startBtn: document.getElementById('startBtn'), restoreBtn: document.getElementById('restoreBtn')
   };
 
-  // Speicherprüfung & Cleanup
   try {
      const raw = localStorage.getItem('uplus_state');
      if(raw && raw.length > 500000) { 
-         // Korrupter/Zu großer Speicher wird gelöscht
          localStorage.removeItem('uplus_state');
      } else if(raw) {
          document.getElementById('restoreArea').style.display = 'block';
@@ -303,7 +308,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   updateRecordUI();
 
-  // Event Listeners
   document.getElementById('addPlayerBtn').addEventListener('click', addInput);
   document.getElementById('removePlayerBtn').addEventListener('click', removeInput);
   ui.startBtn.addEventListener('click', startGame);
@@ -329,14 +333,11 @@ function startGame() {
     const inputs = [...ui.playerInputs.querySelectorAll('input')];
     const names = inputs.map(i => i.value.trim() || i.placeholder).filter(n => n);
     if(names.length < 1) return showInfo("Fehler", "Bitte mindestens einen Spieler eingeben.");
-    
     state.players = names.map(n => ({name: n, score: 0}));
     state.phase = 'playing'; state.ballsLeft = [1,2,3,4,5,6,7,8,9]; state.pocketed = [];
     state.currentIdx = 0; state.roundCount = 1; state.history = []; state.undoStack = [];
     enterGameMode();
-  } catch(e) {
-    alert("Fehler beim Starten: " + e.message);
-  }
+  } catch(e) { alert("Fehler: " + e.message); }
 }
 
 function restoreGame() {
@@ -344,7 +345,6 @@ function restoreGame() {
       const saved = JSON.parse(localStorage.getItem('uplus_state')); 
       if(saved) { 
           state = saved; 
-          // Sicherheits-Reset für UndoStack, falls dieser das Problem war
           if(state.undoStack && state.undoStack.length > 20) state.undoStack = [];
           enterGameMode(); 
       } 
@@ -352,16 +352,8 @@ function restoreGame() {
 }
 
 function enterGameMode() {
-  ui.setup.style.display = 'none'; 
-  ui.game.style.display = 'block'; 
-  ui.scores.style.display = 'block'; 
-  ui.stats.style.display = 'block';
-  requestWakeLock(); 
-  setTimeout(() => { 
-    ui.game.scrollIntoView({behavior:'smooth'}); 
-    saveState(); 
-    render(); 
-  }, 50);
+  ui.setup.style.display = 'none'; ui.game.style.display = 'block'; ui.scores.style.display = 'block'; ui.stats.style.display = 'block';
+  requestWakeLock(); setTimeout(() => { ui.game.scrollIntoView({behavior:'smooth'}); saveState(); render(); }, 50);
 }
 
 function addInput() { const i = document.createElement('input'); i.placeholder = `Spieler ${ui.playerInputs.children.length + 1}`; ui.playerInputs.appendChild(i); }
@@ -369,17 +361,12 @@ function removeInput() { if(ui.playerInputs.children.length > 1) ui.playerInputs
 function getLowest() { return Math.min(...state.ballsLeft); }
 
 function render() {
-  if(!state.players || state.players.length === 0) return; // Safety Check
-
-  const p = state.players[state.currentIdx]; 
-  if(p) ui.currentName.textContent = p.name;
-  
-  const low = getLowest(); 
-  ui.lowestDisplay.textContent = isFinite(low) ? low : "-";
+  if(!state.players || state.players.length === 0) return;
+  const p = state.players[state.currentIdx]; ui.currentName.textContent = p.name;
+  const low = getLowest(); ui.lowestDisplay.textContent = isFinite(low) ? low : "-";
   ui.roundCounter.textContent = `Runde ${state.roundCount}`;
 
-  // HEADER MINI SCORE UPDATE (Safe Mode)
-  if(ui.miniScore && state.players) {
+  if(ui.miniScore) {
       const summary = state.players.map(pl => {
           const initial = pl.name ? pl.name.charAt(0).toUpperCase() : '?';
           return `${initial}: ${pl.score}`;
@@ -403,7 +390,6 @@ function render() {
 }
 function togglePocket(num, btn) { state.pocketed.includes(num) ? state.pocketed = state.pocketed.filter(n => n !== num) : state.pocketed.push(num); render(); }
 
-// --- UNDO MEMORY FIX ---
 function pushUndo() {
   const stateClone = JSON.parse(JSON.stringify(state));
   stateClone.undoStack = []; 
@@ -452,64 +438,4 @@ function finishRound(winner, msg) {
 }
 function updateStatsUI() {
   if(state.history.length === 0) { ui.statsText.textContent = "Noch keine beendeten Runden."; ui.roundList.innerHTML = ''; return; }
-  const avg = Math.round(state.history.reduce((acc, h) => acc + h.score, 0) / state.history.length);
-  ui.statsText.innerHTML = `Runden: ${state.history.length} · Ø: ${avg} · E9: ${state.early9Count}`;
-  ui.roundList.innerHTML = state.history.map(h => `<li>Runde ${h.round}: <b>${h.winner}</b> (${h.score})<br><small style="opacity:0.6">${h.details}</small></li>`).join('');
-}
-function updateRecordUI() { const r = state.tableRecord || JSON.parse(localStorage.getItem('uplus_record')); document.getElementById('recordText').textContent = r ? `${r.score} Pkt - ${r.name} (${r.date})` : "- noch keiner -"; }
-function saveState() { localStorage.setItem('uplus_state', JSON.stringify(state)); }
-
-function exportStats() {
-  if(state.history.length === 0) return showInfo("Info", "Noch keine beendeten Runden.");
-  let totalScores = {};
-  state.history.forEach(round => {
-    round.details.split(' | ').forEach(entry => {
-        let [name, score] = entry.split(':'); score = parseInt(score) || 0;
-        if(!totalScores[name]) totalScores[name] = 0; totalScores[name] += score;
-    });
-  });
-  let text = `🎱 Ultimate++ Statistik (${new Date().toLocaleDateString()})\nRunden: ${state.history.length}\n\nGESAMTPUNKTE:\n`;
-  Object.entries(totalScores).sort(([,a],[,b]) => b-a).forEach(([name, score], i) => { text += `${i+1}. ${name}: ${score} Pkt\n`; });
-  if(navigator.clipboard) {
-      navigator.clipboard.writeText(text).then(() => showInfo("Kopiert!", "Statistik ist in der Zwischenablage.")).catch(err => showInfo("Fehler", "Manuelles Kopieren nötig."));
-  } else showInfo("Fehler", "Clipboard API nicht verfügbar.");
-}
-
-function showRules() {
-  const overlay = document.getElementById('modalOverlay'); document.getElementById('mTitle').textContent = "Spielregeln";
-  document.getElementById('mContent').innerHTML = RULES_HTML; document.getElementById('mText').textContent = "";
-  document.getElementById('mOkBtn').style.display = 'block'; document.getElementById('mConfirmBtns').style.display = 'none';
-  overlay.style.display = 'flex';
-  const okBtn = document.getElementById('mOkBtn'); const newOk = okBtn.cloneNode(true); okBtn.replaceWith(newOk);
-  newOk.onclick = () => { overlay.style.display = 'none'; document.getElementById('mContent').innerHTML = ""; };
-}
-function showInfo(title, text, cb) {
-  const overlay = document.getElementById('modalOverlay'); document.getElementById('mTitle').textContent = title;
-  document.getElementById('mContent').innerHTML = ""; document.getElementById('mText').innerHTML = text;
-  document.getElementById('mOkBtn').style.display = 'block'; document.getElementById('mConfirmBtns').style.display = 'none';
-  overlay.style.display = 'flex'; const okBtn = document.getElementById('mOkBtn'); const newOk = okBtn.cloneNode(true); okBtn.replaceWith(newOk);
-  newOk.onclick = () => { overlay.style.display = 'none'; if(cb) cb(); };
-}
-function showConfirmDialog(title, text, onYes) {
-  const overlay = document.getElementById('modalOverlay'); document.getElementById('mTitle').textContent = title;
-  document.getElementById('mContent').innerHTML = ""; document.getElementById('mText').textContent = text;
-  document.getElementById('mOkBtn').style.display = 'none'; document.getElementById('mConfirmBtns').style.display = 'flex';
-  overlay.style.display = 'flex'; const btnYes = document.getElementById('mYesBtn'); const btnNo = document.getElementById('mCancelBtn');
-  const newYes = btnYes.cloneNode(true); const newNo = btnNo.cloneNode(true); btnYes.replaceWith(newYes); btnNo.replaceWith(newNo);
-  newNo.onclick = () => overlay.style.display = 'none'; newYes.onclick = () => { overlay.style.display = 'none'; if(onYes) onYes(); };
-}
-function confirmNewEvening() { showConfirmDialog("Neuer Abend?", "Alles löschen?", () => { localStorage.removeItem('uplus_state'); location.reload(); }); }
-function confirmResetRecord() { showConfirmDialog("Rekord löschen?", "Sicher?", () => { setTimeout(() => { showConfirmDialog("Wirklich?", "Endgültig löschen!", () => { state.tableRecord = null; localStorage.removeItem('uplus_record'); updateRecordUI(); }); }, 200); }); }
-function triggerConfetti() {
-  const colors = ['#f7d51d', '#e53935', '#1e90ff', '#fff'];
-  for (let i = 0; i < 30; i++) {
-    const c = document.createElement('div'); c.className = 'confetti'; c.style.left = Math.random() * 100 + 'vw';
-    c.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)]; c.style.animationDuration = (Math.random() * 2 + 2) + 's';
-    document.body.appendChild(c); setTimeout(() => c.remove(), 4000);
-  }
-}
-</script>
-</body>
-</html>
-
-
+  const avg = Math.round(state.history.reduce((acc, h) => acc + h.score, 0) / state.history
