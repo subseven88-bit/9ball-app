@@ -251,7 +251,7 @@ const RULES_HTML = `
         </ul>
       </li>
       <li><b>Sieg:</b> Wer die 9 locht, gewinnt sofort.</li>
-      <li><b>Foul:</b> Weiße fällt oder niedrigste Kugel nicht getroffen = <b>-2 Punkte</b>. Gegner startet mit Ball an Startlinie.</li>
+      <li><b>Foul:</b> Weiße fällt oder niedrigste Kugel nicht getroffen = <b>-2 Punkte</b>. Gegner hat Ball-in-Hand.</li>
     </ul>
   </div>
 `;
@@ -298,4 +298,331 @@ function startGame() {
     
     state.players = names.map(n => ({name: n, score: 0}));
     state.phase = 'playing'; 
-    state.ballsLeft =
+    state.ballsLeft = [1,2,3,4,5,6,7,8,9]; 
+    state.pocketed = [];
+    state.currentIdx = 0; 
+    state.roundCount = 1; 
+    state.history = []; 
+    state.undoStack = [];
+    
+    enterGameMode();
+  } catch(e) {
+    alert("Fehler: " + e.message);
+  }
+}
+
+function restoreGame() {
+  try { 
+      const saved = JSON.parse(localStorage.getItem('uplus_state')); 
+      if(saved) { 
+          state = saved; 
+          // Stack-Reset für Stabilität
+          if(state.undoStack && state.undoStack.length > 20) state.undoStack = [];
+          enterGameMode(); 
+      } 
+  } catch(e) { console.error(e); }
+}
+
+function enterGameMode() {
+  document.getElementById('setup').style.display = 'none'; 
+  document.getElementById('game').style.display = 'block'; 
+  document.getElementById('scores').style.display = 'block'; 
+  document.getElementById('stats').style.display = 'block';
+  
+  requestWakeLock();
+  
+  setTimeout(() => { 
+      document.getElementById('game').scrollIntoView({behavior:'smooth'}); 
+      saveState(); 
+      render(); 
+  }, 100);
+}
+
+// SETUP HELPERS
+function addInput() { 
+    const c = document.getElementById('playerInputs');
+    const i = document.createElement('input'); 
+    i.placeholder = `Spieler ${c.children.length + 1}`; 
+    c.appendChild(i); 
+}
+
+function removeInput() { 
+    const c = document.getElementById('playerInputs');
+    if(c.children.length > 1) c.lastChild.remove(); 
+}
+
+function toggleTheme() {
+    document.body.classList.toggle('dark');
+}
+
+// GAME LOGIC
+function getLowest() { return Math.min(...state.ballsLeft); }
+
+function render() {
+  if(!state.players || state.players.length === 0) return;
+
+  const p = state.players[state.currentIdx]; 
+  document.getElementById('currentPlayerName').textContent = p.name;
+  
+  const low = getLowest(); 
+  document.getElementById('lowestDisplay').textContent = isFinite(low) ? low : "-";
+  document.getElementById('roundCounter').textContent = `Runde ${state.roundCount}`;
+
+  // Mini Score
+  const mini = document.getElementById('miniScore');
+  if(mini) {
+      const summary = state.players.map(pl => {
+          const initial = pl.name ? pl.name.charAt(0).toUpperCase() : '?';
+          return `${initial}: ${pl.score}`;
+      }).join(' | ');
+      mini.textContent = summary;
+  }
+
+  // Grid
+  const grid = document.getElementById('ballGrid');
+  grid.innerHTML = '';
+  for(let i=1; i<=9; i++) {
+    const btn = document.createElement('button'); btn.className = 'ball';
+    const color = ballColors[i-1]; btn.style.backgroundColor = color.bg; btn.style.color = color.txt; btn.textContent = i;
+    
+    // Onclick direkt im HTML generieren ist sauberer als addEventListener
+    if(!state.ballsLeft.includes(i)) btn.classList.add('ghost'); 
+    else btn.onclick = () => togglePocket(i);
+    
+    if(state.pocketed.includes(i)) { 
+        btn.classList.add('sel'); 
+        if(i===9) btn.style.boxShadow = "0 0 15px #ff0000"; 
+    }
+    grid.appendChild(btn);
+  }
+
+  // Table
+  let html = '<tr><th>Name</th><th>Pkt</th></tr>';
+  state.players.forEach((pl, idx) => {
+    html += `<tr class="${idx === state.currentIdx ? 'active-row' : ''}"><td>${idx === state.currentIdx ? '🎱 ' : ''}${pl.name}</td><td>${pl.score}</td></tr>`;
+  });
+  document.getElementById('scoreTable').innerHTML = html; 
+  updateStatsUI();
+}
+
+function togglePocket(num) { 
+    state.pocketed.includes(num) ? state.pocketed = state.pocketed.filter(n => n !== num) : state.pocketed.push(num); 
+    render(); 
+}
+
+// UNDO & STATE SAFEGUARD
+function pushUndo() {
+  const stateClone = JSON.parse(JSON.stringify(state));
+  stateClone.undoStack = []; // Verhindert Rekursion
+  state.undoStack.push(JSON.stringify(stateClone));
+  if(state.undoStack.length > 10) state.undoStack.shift();
+}
+
+function confirmShot() {
+  if(state.pocketed.length === 0) return showInfo("Info", "Keine Kugel ausgewählt.");
+  pushUndo();
+  
+  const low = getLowest(); 
+  const player = state.players[state.currentIdx];
+  let points = 0; let gameWon = false; let early9 = false;
+  
+  state.pocketed.forEach(ball => {
+    points += (ball === low) ? ball : (ball + low);
+    if(ball === 9) { 
+        if(state.ballsLeft.length > 1 && !state.pocketed.includes(low)) early9 = true; 
+        gameWon = true; 
+    }
+  });
+
+  player.score += points; 
+  state.ballsLeft = state.ballsLeft.filter(b => !state.pocketed.includes(b)); 
+  state.pocketed = [];
+
+  if(gameWon) { 
+      if(early9) state.early9Count++; 
+      triggerConfetti(); 
+      finishRound(player, early9 ? "🎯 EARLY 9! Sieg!" : "🎱 9 gefallen! Sieg!"); 
+  } else { 
+      if(state.ballsLeft.length === 0) finishRound(null, "Tisch leer gespielt."); 
+      else { saveState(); render(); } 
+  }
+}
+
+function nextTurn() { 
+    pushUndo(); state.pocketed = []; 
+    state.currentIdx = (state.currentIdx + 1) % state.players.length; 
+    saveState(); render(); 
+}
+
+function foul() { 
+    pushUndo(); state.pocketed = []; 
+    state.players[state.currentIdx].score = Math.max(0, state.players[state.currentIdx].score - 2); 
+    state.currentIdx = (state.currentIdx + 1) % state.players.length; 
+    saveState(); render(); 
+}
+
+function undo() {
+  if(state.undoStack.length === 0) return showInfo("Info", "Nichts zum Rückgängig machen.");
+  const prev = JSON.parse(state.undoStack.pop());
+  state.players = prev.players; 
+  state.currentIdx = prev.currentIdx;
+  state.ballsLeft = prev.ballsLeft; 
+  state.phase = prev.phase;
+  state.roundCount = prev.roundCount; 
+  state.pocketed = [];
+  saveState(); render();
+}
+
+function finishRound(winner, msg) {
+  if(!winner) winner = state.players.reduce((a,b) => a.score > b.score ? a : b);
+  
+  if(!state.tableRecord || winner.score > state.tableRecord.score) {
+    state.tableRecord = {name: winner.name, score: winner.score, date: new Date().toLocaleDateString()};
+    localStorage.setItem('uplus_record', JSON.stringify(state.tableRecord)); 
+    msg += `<br><br>🏆 NEUER REKORD: ${winner.score}!`;
+  }
+  
+  const summary = state.players.map(p => `${p.name}:${p.score}`).join(' | ');
+  state.history.unshift({round: state.roundCount, winner: winner.name, score: winner.score, details: summary});
+  
+  showInfo(msg, `Gewinner: ${winner.name} (${winner.score} Pkt)`, () => {
+    state.ballsLeft = [1,2,3,4,5,6,7,8,9]; 
+    state.players.forEach(p => p.score = 0);
+    state.currentIdx = (state.roundCount) % state.players.length; 
+    state.roundCount++;
+    state.pocketed = []; 
+    state.undoStack = []; 
+    saveState(); render(); updateRecordUI();
+  });
+}
+
+function updateStatsUI() {
+  const list = document.getElementById('roundList');
+  const txt = document.getElementById('statsText');
+  
+  if(state.history.length === 0) { 
+      txt.textContent = "Noch keine beendeten Runden."; 
+      list.innerHTML = ''; return; 
+  }
+  
+  const avg = Math.round(state.history.reduce((acc, h) => acc + h.score, 0) / state.history.length);
+  txt.innerHTML = `Runden: ${state.history.length} · Ø: ${avg} · E9: ${state.early9Count}`;
+  
+  list.innerHTML = state.history.map(h => 
+    `<li>Runde ${h.round}: <b>${h.winner}</b> (${h.score})<br><small style="opacity:0.6">${h.details}</small></li>`
+  ).join('');
+}
+
+function updateRecordUI() { 
+    const r = state.tableRecord || JSON.parse(localStorage.getItem('uplus_record')); 
+    document.getElementById('recordText').textContent = r ? `${r.score} Pkt - ${r.name} (${r.date})` : "- noch keiner -"; 
+}
+
+function saveState() { 
+    localStorage.setItem('uplus_state', JSON.stringify(state)); 
+}
+
+function exportStats() {
+  if(state.history.length === 0) return showInfo("Info", "Noch keine beendeten Runden.");
+  
+  let totalScores = {};
+  state.history.forEach(round => {
+    round.details.split(' | ').forEach(entry => {
+        let [name, score] = entry.split(':'); score = parseInt(score) || 0;
+        if(!totalScores[name]) totalScores[name] = 0; totalScores[name] += score;
+    });
+  });
+  
+  let text = `🎱 Ultimate Statistik (${new Date().toLocaleDateString()})\nRunden: ${state.history.length}\n\nGESAMTPUNKTE:\n`;
+  Object.entries(totalScores).sort(([,a],[,b]) => b-a).forEach(([name, score], i) => { text += `${i+1}. ${name}: ${score} Pkt\n`; });
+  
+  if(navigator.clipboard) {
+      navigator.clipboard.writeText(text)
+        .then(() => showInfo("Kopiert!", "Statistik ist in der Zwischenablage."))
+        .catch(() => showInfo("Fehler", "Manuelles Kopieren nötig."));
+  } else showInfo("Fehler", "Clipboard API nicht verfügbar.");
+}
+
+// --- MODALS ---
+function showRules() {
+  const overlay = document.getElementById('modalOverlay'); 
+  document.getElementById('mTitle').textContent = "Spielregeln";
+  document.getElementById('mContent').innerHTML = RULES_HTML; 
+  document.getElementById('mText').textContent = "";
+  document.getElementById('mOkBtn').style.display = 'block'; 
+  document.getElementById('mConfirmBtns').style.display = 'none';
+  
+  overlay.style.display = 'flex';
+  
+  // Clean event listener
+  const ok = document.getElementById('mOkBtn');
+  const newOk = ok.cloneNode(true); ok.replaceWith(newOk);
+  newOk.onclick = () => { overlay.style.display = 'none'; document.getElementById('mContent').innerHTML = ""; };
+}
+
+function showInfo(title, text, cb) {
+  const overlay = document.getElementById('modalOverlay'); 
+  document.getElementById('mTitle').textContent = title;
+  document.getElementById('mContent').innerHTML = ""; 
+  document.getElementById('mText').innerHTML = text;
+  document.getElementById('mOkBtn').style.display = 'block'; 
+  document.getElementById('mConfirmBtns').style.display = 'none';
+  
+  overlay.style.display = 'flex';
+  const ok = document.getElementById('mOkBtn');
+  const newOk = ok.cloneNode(true); ok.replaceWith(newOk);
+  
+  newOk.onclick = () => { overlay.style.display = 'none'; if(cb) cb(); };
+}
+
+function showConfirmDialog(title, text, onYes) {
+  const overlay = document.getElementById('modalOverlay'); 
+  document.getElementById('mTitle').textContent = title;
+  document.getElementById('mContent').innerHTML = ""; 
+  document.getElementById('mText').textContent = text;
+  document.getElementById('mOkBtn').style.display = 'none'; 
+  document.getElementById('mConfirmBtns').style.display = 'flex';
+  
+  overlay.style.display = 'flex';
+  
+  const yes = document.getElementById('mYesBtn'); 
+  const no = document.getElementById('mCancelBtn');
+  const newYes = yes.cloneNode(true); const newNo = no.cloneNode(true);
+  yes.replaceWith(newYes); no.replaceWith(newNo);
+  
+  newNo.onclick = () => overlay.style.display = 'none';
+  newYes.onclick = () => { overlay.style.display = 'none'; if(onYes) onYes(); };
+}
+
+function confirmNewEvening() { 
+    showConfirmDialog("Neuer Abend?", "Alles löschen?", () => { 
+        localStorage.removeItem('uplus_state'); location.reload(); 
+    }); 
+}
+
+function confirmResetRecord() { 
+    showConfirmDialog("Rekord löschen?", "Sicher?", () => { 
+        setTimeout(() => { 
+            showConfirmDialog("Wirklich?", "Endgültig löschen!", () => { 
+                state.tableRecord = null; 
+                localStorage.removeItem('uplus_record'); 
+                updateRecordUI(); 
+            }); 
+        }, 200); 
+    }); 
+}
+
+function triggerConfetti() {
+  const colors = ['#f7d51d', '#e53935', '#1e90ff', '#fff'];
+  for (let i = 0; i < 30; i++) {
+    const c = document.createElement('div'); c.className = 'confetti'; 
+    c.style.left = Math.random() * 100 + 'vw';
+    c.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)]; 
+    c.style.animationDuration = (Math.random() * 2 + 2) + 's';
+    document.body.appendChild(c); 
+    setTimeout(() => c.remove(), 4000);
+  }
+}
+</script>
+</body>
+</html>
